@@ -55,6 +55,7 @@ namespace Calculator
             string[] splitedMath = divideIntoParts(mathOperation);
             int numberOfElements = operationStackAndBrace.Count;
             int numberOfNumbers = numberStack.Count;
+            bool changeSign;
             foreach (string operation in splitedMath)
             {
                 numberOfElements = operationStackAndBrace.Count;
@@ -135,7 +136,7 @@ namespace Calculator
                     }
                     else if (operation == ")")
                     {
-                        if (numberOfElements > 1 && operationStackAndBrace.Contains("("))
+                        if (numberOfElements > 1 && operationStackAndBrace.Contains("(") && numberOfNumbers >1)
                         {
                             while (numberOfNumbers > 1 && numberOfElements > 1)
                             {
@@ -192,10 +193,39 @@ namespace Calculator
                                     operationStackAndBrace.RemoveAt(numberOfElements - 1);
                                     numberOfElements = operationStackAndBrace.Count;
                                     numberOfNumbers = numberStack.Count;
+                                    if (numberOfElements>1 && numberOfNumbers>0) {
+                                        if ((operationStackAndBrace[numberOfElements - 1] == "-") &&
+                                            (operationStackAndBrace[numberOfElements - 2] == "("))
+                                        {
+                                            operationStackAndBrace.RemoveAt(numberOfElements - 1);
+                                            numberStack[numberOfNumbers - 1]*=-1 ;
+                                            numberOfElements = operationStackAndBrace.Count;
+                                        }
+                                    }
                                     break;
                                 }
                             }
 
+                        }
+                        else if (numberOfNumbers>0 && operationStackAndBrace.Contains("("))
+                        {
+                            if (operationStackAndBrace[numberOfElements - 1] == "(")
+                            {
+                                operationStackAndBrace.RemoveAt(numberOfElements - 1);
+                                numberOfElements = operationStackAndBrace.Count;
+                                numberOfNumbers = numberStack.Count;
+                                
+                            }
+                            if (numberOfElements > 1 && numberOfNumbers > 0)
+                            {
+                                if ((operationStackAndBrace[numberOfElements - 1] == "-") &&
+                                    (operationStackAndBrace[numberOfElements - 2] == "("))
+                                {
+                                    operationStackAndBrace.RemoveAt(numberOfElements - 1);
+                                    numberStack[numberOfNumbers - 1] *= -1;
+                                    numberOfElements = operationStackAndBrace.Count;
+                                }
+                            }
                         }
                         else
                         {
@@ -205,9 +235,18 @@ namespace Calculator
                     }
                 }
             }
+            changeSign = false;
             numberOfElements = operationStackAndBrace.Count;
             numberOfNumbers = numberStack.Count;
-            if (numberOfElements + 1 == numberOfNumbers)
+            if((numberOfElements == numberOfNumbers) && (operationStackAndBrace[0] == "-"))
+            {
+                changeSign = true;
+                operationStackAndBrace.RemoveAt(0);
+                numberOfElements = operationStackAndBrace.Count;
+                numberOfNumbers = numberStack.Count;
+
+            }
+            if ((numberOfElements + 1 == numberOfNumbers))
             {
                 while (numberOfNumbers != 1)
                 {
@@ -267,14 +306,79 @@ namespace Calculator
                 return -1;
             }
 
-            return numberStack[0];
+            if (changeSign)
+            {
+                return -numberStack[0];
+            }
+            else
+            {
+                return numberStack[0];
+            }
         }
 
         private string[] divideIntoParts(string input)
         {
             string pattern = @"([*()\^\/]|(?<!E)[\+\-])";
             string[] substrings = Regex.Split(input, pattern);
-            return substrings;
+            substrings = substrings.Where(x => !string.IsNullOrEmpty(x)).ToArray();
+            List<string> newSubstring = new List<string>();
+            for(int i=0; i < substrings.Length; i++)
+            {
+                if (substrings.Length == 2 && substrings[i]=="-")
+                {
+                    if(decimal.TryParse(substrings[i+1], out decimal number))
+                    {
+                        newSubstring.Add(substrings[i]+substrings[i+1]);
+                        i++;
+                    }
+                    else
+                    {
+                        newSubstring.Add(substrings[0]);
+                        newSubstring.Add(substrings[1]);
+                    }
+                }
+                else if (i==0 && (substrings[i] == "-") && (substrings[i+1] != "("))
+                {
+                    if (decimal.TryParse(substrings[i + 1], out decimal number))
+                    {
+                        newSubstring.Add(substrings[i] + substrings[i + 1]);
+                        i++;
+                    }
+                    else
+                    {
+                        newSubstring.Add(substrings[i]);
+                        newSubstring.Add(substrings[i+1]);
+                        i++;
+                    }
+                }
+                else if (substrings.Length > 2 && (i + 1 != substrings.Length) && i>0)
+                {
+                    if ((substrings[i] == "-") &&(substrings[i-1] =="(") )
+                    {
+                        if (decimal.TryParse(substrings[i+1], out decimal number))
+                        {
+                            newSubstring.Add(substrings[i] + substrings[i+1]);
+                            i++;
+                        }
+                        else
+                        {
+                            newSubstring.Add(substrings[i]);
+                        }
+                    }
+                    else
+                    {
+                        newSubstring.Add(substrings[i]);
+                    }
+
+                }
+                else
+                {
+                    newSubstring.Add(substrings[i]);
+                }
+            }
+            string[] newArray = newSubstring.ToArray();
+            
+            return newArray;
         }
 
         

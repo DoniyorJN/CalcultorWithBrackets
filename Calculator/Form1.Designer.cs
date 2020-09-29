@@ -43,6 +43,7 @@
             this.numberTextBox.Name = "numberTextBox";
             this.numberTextBox.Size = new System.Drawing.Size(194, 20);
             this.numberTextBox.TabIndex = 0;
+            this.numberTextBox.TextChanged += new System.EventHandler(this.NumberTextBox_TextChanged);
             // 
             // button1
             // 
@@ -50,7 +51,7 @@
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(87, 48);
             this.button1.TabIndex = 1;
-            this.button1.Text = "Calculate";
+            this.button1.Text = "Calculate without clear";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.Button1_Click);
             // 

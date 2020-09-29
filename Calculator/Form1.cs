@@ -17,6 +17,22 @@ namespace Calculator
         {
             InitializeComponent();
         }
+        private void NumberTextBox_TextChanged(object sender, EventArgs e)
+        {
+            this.numberTextBox.KeyPress += new System.Windows.Forms.KeyPressEventHandler(CheckEnterKeyPress);
+            
+        }
+        private void CheckEnterKeyPress(object sender, System.Windows.Forms.KeyPressEventArgs e)
+        {
+            if (e.KeyChar == (char)Keys.Return)
+
+            {
+                string getNumber = numberTextBox.Text;
+                result = getResults(getNumber);
+                resultLabel.Text = result.ToString();
+                numberTextBox.Text = result.ToString();
+            }
+        }
 
         private void Button1_Click(object sender, EventArgs e)
         {
